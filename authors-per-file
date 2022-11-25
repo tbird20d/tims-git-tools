@@ -1,0 +1,26 @@
+#!/bin/sh
+# authors-per-file - list all the authors of a file, based on the
+# git commits for a file
+#
+# $1 = file to list authors for
+
+filename="$1"
+if [ -z "$filename" ] ; then
+    echo "Error: missing filename"
+    echo "Usage: authors-per-file \<filename\>"
+    exit 1
+fi
+
+# check that $1 is a file
+if [ ! -f ${filename} ] ; then
+    echo "Error: $filename is not a file"
+    echo "Usage: authors-per-file \<filename\>"
+    exit 1
+fi
+
+# use git log to find all commits, and output the author email for each commit
+# sort the list, coalesce mailids, and filter to uniq entries
+# prefix the list with the filename, to allow creating a unified database of
+# authors
+git log --all-match --pretty=%ae $filename | sort | multi-replace mailids | \
+    uniq | sed -e "s#^#$filename: #"
