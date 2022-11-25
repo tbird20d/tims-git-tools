@@ -1,0 +1,36 @@
+#!/bin/sh
+# glog - show summary git log
+#
+
+ENTRIES=8
+if [ "$1" = "-h" ]  ; then
+	echo "Usage: glog [-h] [-v] [n] [<more-git-args>]"
+	echo "Show the git log with each commit on a single line"
+	echo "  -h = Show this usage"
+	echo "  -v = verbose (show more data per line)"
+	echo "   n = number of entries to show"
+	exit 0
+fi
+
+if [ "$1" = "-v" ] ; then
+	BE_VERBOSE=1
+	shift
+fi
+
+is_number() {
+	case $1 in
+		''|*[!0-9]*) return 1 ;;
+		*) return 0 ;;
+	esac
+}
+
+if is_number $1 ; then
+	ENTRIES="$1"
+	shift
+fi
+
+if [ -n "$BE_VERBOSE" ] ; then
+	git log -n $ENTRIES --format="%C(yellow)%h %Cblue%>(12)%ar %Cgreen%<(7)%aN: %Cred%d %Creset%s" $@
+else
+	git log -n $ENTRIES --format="%C(yellow)%h %Creset%s" $@
+fi
